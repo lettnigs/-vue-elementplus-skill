@@ -1,172 +1,54 @@
-name: 一键构建 Vue3 标准化工程
-description: 自动搭建基于 Vue3 + Element Plus + Pinia + 规范化 ESLint 的高阶前端项目
+# 🚀 Vue3 + Element Plus 自动化高阶工程构建 Skill
 
+[![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D.svg)](https://vuejs.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF.svg)](https://vitejs.dev/)
+[![Element Plus](https://img.shields.io/badge/Element%20Plus-Latest-409EFF.svg)](https://element-plus.org/)
+[![pnpm](https://img.shields.io/badge/pnpm-fast-F69220.svg)](https://pnpm.io/)
 
-Skill: 一键构建 Vue 3 + Element Plus 标准化高阶工程
+> 这是一个专为 AI 编程助手（如 Cursor、GitHub Copilot、Claude 等）设计的自动化构建指令集（Prompt）。
+> 只需将本指令喂给 AI Agent，即可一键自动完成 Vue3 现代前端标准化工程的从 0 到 1 搭建，彻底告别繁琐的手动配置。
 
-请作为资深前端 Agent，在当前目录创建名为 my-vue-app 的项目，并严格一次性连贯执行以下所有构建操作。遇报错请自动修复，提供的代码块必须 100% 原样写入。
+## ✨ 核心特性
 
-一、 脚手架与依赖构建
+* 📦 **现代技术栈全家桶**：底层基于 Vue 3 + Vite，无缝集成 Vue Router 与 Pinia。
+* 🎨 **组件与图标开箱即用**：深度集成 Element Plus 及 `@element-plus/icons-vue`，实现图标的自动全局注册。
+* ⚡️ **极致开发体验**：内置 `unplugin-auto-import` 和 `unplugin-vue-components`，彻底解放双手，告别海量 `import` 样板代码。
+* 🛡️ **严苛的工程化规范**：配置了最新的 ESLint (Flat Config) 与 Prettier，并前瞻性地引入了基于 Rust 的极速 Linter **Oxlint**，保障代码极致纯净。
+* 🌐 **生产级底层封装**：内置带有 Token 自动无感注入、全局异常状态拦截的 Axios 封装，以及基于 `pinia-plugin-persistedstate` 的状态持久化方案。
+* ⚙️ **深度的编辑器优化**：自动生成 `.vscode/settings.json`，实现保存自动格式化与文件目录折叠（File Nesting），保持工作区极度清爽。
 
-1. 运行 pnpm create vue@latest my-vue-app 并进入目录。（注：默认选择并集成 Vue Router、Pinia、ESLint 和 Prettier 配置）。然后执行
-       pnpm i
-   
-2. 安装 UI 组件库与业务生产依赖：运行 pnpm add element-plus @element-plus/icons-vue axios pinia-plugin-persistedstate。
-3. 安装补充开发依赖：运行 pnpm add -D sass unplugin-auto-import unplugin-vue-components oxlint vite-plugin-vue-devtools vue-eslint-parser eslint-plugin-prettier eslint-config-prettier。
-4. 在 package.json 中补充脚本：执行 npm pkg set scripts.lint:oxlint="oxlint ."。
+## 📖 使用说明
 
-二、 工程清理与目录结构骨架
+本仓库包含的核心文件为一段高度结构化的 Prompt 指令。
 
-1. 清空 src 下的默认无用文件（如 assets/main.css、默认 components 等）。严格按照以下规范构建 src 下的目录树：
-2. 创建基础文件夹：api, assets, components, router, stores, utils, views。
-3. 在 views 文件夹下，创建四个业务子文件夹：article, layout, login, user。
-4. 创建 src/assets/main.scss 写入基础样式并在 main.js 引入。
-5. 重写 App.vue，仅保留 <router-view /> 占位。
-6. 在 main.js 中按如下方式注册所有图标：
-       import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-       // app 实例化后
-       for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-         app.component(key, component)
-       }
+1. 新建一个空的本地文件夹。
+2. 在该目录下唤起你的 AI 编程助手（如 Cursor 的 Composer 模式，或任意终端 AI Agent）。
+3. 复制本仓库中 `前端vue+elementplus.md` 的全部文本，发送给 AI。
+4. 喝口水，等待 AI 自动执行完毕。
 
-三、 状态、路由与网络底层封装
+> **⚠️ 前置要求**：请确保你的系统环境已全局安装 Node.js 和 `pnpm`。
 
-在 main.js 挂载 Pinia 及 pinia-plugin-persistedstate；建 stores/user.js 处理 Token 存取并设 persist: true；建 router/index.js 配 / 与 /login 基础路由；建 utils/request.js 封装 Axios（请求头自动挂载 Bearer Token；响应拦截需包含“// TODO: 根据后端实际成功 code 修改判断逻辑”注释，以及 401/500 状态下使用 ElMessage 抛出错误提示、清除凭证跳 /login 的逻辑。注意：在 Axios 响应拦截器内部进行 router 的动态导入或调用，避免顶层引用导致初始化顺序错误）。
+## 📂 自动生成的目录骨架
 
-四、 核心配置文件强制覆写 (严格按以下代码写入)：
+AI 执行完毕后，你将得到如下符合企业级规范的项目结构：
 
-【文件 1】覆盖 vite.config.js：
-
-    import { fileURLToPath, URL } from 'node:url'
-    import { defineConfig } from 'vite'
-    import vue from '@vitejs/plugin-vue'
-    import vueDevTools from 'vite-plugin-vue-devtools'
-    import AutoImport from 'unplugin-auto-import/vite'
-    import Components from 'unplugin-vue-components/vite'
-    import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-    
-    export default defineConfig({
-      plugins: [
-        vue(),
-        vueDevTools(),
-        AutoImport({ 
-          resolvers: [ElementPlusResolver({ importStyle: 'css' })],
-          eslintrc: {
-            enabled: true,
-            filepath: './.eslintrc-auto-import.json',
-            globalsPropValue: true,
-          }
-        }),
-        Components({ 
-          resolvers: [ElementPlusResolver({ importStyle: 'css' })] 
-        }),
-      ],
-      base: '/',
-      resolve: { 
-        alias: { 
-          '@': fileURLToPath(new URL('./src', import.meta.url)) 
-        } 
-      },
-    })
-
-【文件 2】创建 jsconfig.json：
-
-    {
-      "compilerOptions": { "paths": { "@/*": ["./src/*"] } },
-      "exclude": ["node_modules", "dist"],
-      "include": ["src/**/*.js", "src/**/*.vue", "src/**/*.d.ts"]
-    }
-
-【文件 3】创建 .prettierrc.json：
-
-    {
-      "semi": false,
-      "singleQuote": true,
-      "tabWidth": 2,
-      "trailingComma": "es5",
-      "printWidth": 80,
-      "bracketSpacing": true,
-      "arrowParens": "avoid",
-      "endOfLine": "lf",
-      "vueIndentScriptAndStyle": false,
-      "htmlWhitespaceSensitivity": "ignore"
-    }
-
-【文件 4】覆盖 eslint.config.js：
-
-    import pluginVue from 'eslint-plugin-vue'
-    import prettier from 'eslint-plugin-prettier'
-    import configPrettier from 'eslint-config-prettier'
-    import vueParser from 'vue-eslint-parser'
-    import fs from 'node:fs'
-    import path from 'node:path'
-    
-    let autoImportGlobals = {}
-    try {
-      const autoImportPath = path.resolve(process.cwd(), './.eslintrc-auto-import.json')
-      if (fs.existsSync(autoImportPath)) {
-        autoImportGlobals = JSON.parse(fs.readFileSync(autoImportPath, 'utf8')).globals || {}
-      }
-    } catch (e) {
-      console.warn('等待 auto-imports 插件生成配置文件...')
-    }
-    
-    export default [
-      {
-        ignores: ['node_modules/', 'dist/', '*.config.js', '*.min.js'],
-      },
-      {
-        files: ['**/*.{js,jsx,vue}'],
-        languageOptions: {
-          parser: vueParser,
-          parserOptions: {
-            sourceType: 'module',
-            ecmaVersion: 'latest',
-          },
-          globals: {
-            window: 'readonly',
-            document: 'readonly',
-            console: 'readonly',
-            Vue: 'readonly',
-            ...autoImportGlobals, 
-          },
-        },
-        plugins: {
-          vue: pluginVue,
-          prettier: prettier,
-        },
-        rules: {
-          'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-          'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-          'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-          'prettier/prettier': 'error',
-          'vue/multi-word-component-names': 'warn',
-          'vue/no-unused-vars': 'error',
-          'vue/script-setup-uses-vars': 'error',
-          'vue/no-v-html': 'warn',
-        },
-      },
-      configPrettier,
-      ...pluginVue.configs['flat/recommended']
-    ]
-
-【文件 5】创建 .vscode/settings.json：
-
-    {
-      "explorer.fileNesting.enabled": true,
-      "explorer.fileNesting.patterns": {
-        "tsconfig.json": "tsconfig.*.json, env.d.ts, typed-router.d.ts",
-        "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
-        "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxli*"
-      },
-      "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
-      "editor.formatOnSave": true,
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-      "prettier.requireConfig": true,
-      "prettier.enable": true,
-      "eslint.validate": ["vue", "javascript"]
-    }
-
-
-
+```text
+my-vue-app/
+├── src/
+│   ├── api/            # 接口请求中心
+│   ├── assets/         # 静态资源与全局样式 (main.scss)
+│   ├── components/     # 全局公共组件
+│   ├── router/         # 路由配置 (含拦截器)
+│   ├── stores/         # Pinia 状态管理 (含持久化配置)
+│   ├── utils/          # 工具函数库 (含 Axios 封装)
+│   └── views/          # 业务视图
+│       ├── article/    # 文章模块
+│       ├── layout/     # 全局布局
+│       ├── login/      # 登录模块
+│       └── user/       # 用户模块
+├── .eslintrc-auto-import.json
+├── .prettierrc.json
+├── eslint.config.js
+├── jsconfig.json
+├── package.json
+└── vite.config.js
