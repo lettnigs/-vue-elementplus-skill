@@ -28,7 +28,7 @@
 
 > **⚠️ 前置要求**：请确保你的系统环境已全局安装 Node.js 和 `pnpm`。
 
-🔥 **[👉 点击这里获取完整的自动化构建提示词 (Prompt) 👈](./vue3-element-prompt.md)**
+🔥 **[👉 点击这里获取完整的自动化构建的skill（markdown文件）👈](./vue3-element-prompt.md)**
 
 1. 新建一个空的本地文件夹。
 2. 在该目录下唤起你的 AI 编程助手（如 Cursor、Claude 等）。
