@@ -8,9 +8,7 @@ Skill: 一键构建 Vue 3 + Element Plus 标准化高阶工程
 
 一、 脚手架与依赖构建
 
-1. 运行 pnpm create vue@latest my-vue-app 并进入目录。（注：默认选择并集成 Vue Router、Pinia、ESLint 和 Prettier 配置）。然后执行
-       pnpm i
-   
+1. 运行 pnpm create vue@latest my-vue-app 并进入目录。（注：默认选择并集成 Vue Router、Pinia、ESLint 和 Prettier 配置）。然后执行 pnpm i。
 2. 安装 UI 组件库与业务生产依赖：运行 pnpm add element-plus @element-plus/icons-vue axios pinia-plugin-persistedstate。
 3. 安装补充开发依赖：运行 pnpm add -D sass unplugin-auto-import unplugin-vue-components oxlint vite-plugin-vue-devtools vue-eslint-parser eslint-plugin-prettier eslint-config-prettier。
 4. 在 package.json 中补充脚本：执行 npm pkg set scripts.lint:oxlint="oxlint ."。
@@ -22,8 +20,8 @@ Skill: 一键构建 Vue 3 + Element Plus 标准化高阶工程
 3. 在 views 文件夹下，创建四个业务子文件夹：article, layout, login, user。
 4. 创建 src/assets/main.scss 写入基础样式并在 main.js 引入。
 5. 重写 App.vue，仅保留 <router-view /> 占位。
-6. 在 main.js 中按如下方式注册所有图标：
-       import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+6. 在 main.js 中按如下方式注册全局图标：
+7.     import * as ElementPlusIconsVue from '@element-plus/icons-vue'
        // app 实例化后
        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
          app.component(key, component)
@@ -31,43 +29,46 @@ Skill: 一键构建 Vue 3 + Element Plus 标准化高阶工程
 
 三、 状态、路由与网络底层封装
 
-在 main.js 挂载 Pinia 及 pinia-plugin-persistedstate；建 stores/user.js 处理 Token 存取并设 persist: true；建 router/index.js 配 / 与 /login 基础路由；建 utils/request.js 封装 Axios（请求头自动挂载 Bearer Token；响应拦截需包含“// TODO: 根据后端实际成功 code 修改判断逻辑”注释，以及 401/500 状态下使用 ElMessage 抛出错误提示、清除凭证跳 /login 的逻辑。注意：在 Axios 响应拦截器内部进行 router 的动态导入或调用，避免顶层引用导致初始化顺序错误）。
+   在 main.js 挂载 Pinia 及 pinia-plugin-persistedstate；建 stores/user.js 处理 Token 存取并设 persist: true；建 router/index.js 配 / 与 /login 基础路由；建 utils/request.js 封装 Axios（请求头自动挂载 Bearer Token；响应拦截需包含“// TODO: 根据后端实际成功 code 修改判断逻辑”注释，以及 401/500 状态下抛出错误提示、清除凭证跳 /login 的逻辑。注意：在 Axios 拦截器内部进行 router 导入避免初始化顺序错误）。
 
 四、 核心配置文件强制覆写 (严格按以下代码写入)：
 
-【文件 1】覆盖 vite.config.js：
+   【文件 1】覆盖 vite.config.js：
 
-    import { fileURLToPath, URL } from 'node:url'
-    import { defineConfig } from 'vite'
-    import vue from '@vitejs/plugin-vue'
-    import vueDevTools from 'vite-plugin-vue-devtools'
-    import AutoImport from 'unplugin-auto-import/vite'
-    import Components from 'unplugin-vue-components/vite'
-    import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+       import { fileURLToPath, URL } from 'node:url'
+       import { defineConfig } from 'vite'
+       import vue from '@vitejs/plugin-vue'
+       import vueDevTools from 'vite-plugin-vue-devtools'
+       import AutoImport from 'unplugin-auto-import/vite'
+       import Components from 'unplugin-vue-components/vite'
+       import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
     
-    export default defineConfig({
-      plugins: [
-        vue(),
-        vueDevTools(),
-        AutoImport({ 
-          resolvers: [ElementPlusResolver({ importStyle: 'css' })],
-          eslintrc: {
-            enabled: true,
-            filepath: './.eslintrc-auto-import.json',
-            globalsPropValue: true,
-          }
-        }),
-        Components({ 
-          resolvers: [ElementPlusResolver({ importStyle: 'css' })] 
-        }),
-      ],
-      base: '/',
-      resolve: { 
-        alias: { 
-          '@': fileURLToPath(new URL('./src', import.meta.url)) 
-        } 
-      },
-    })
+       export default defineConfig({
+         plugins: [
+           vue(),
+           vueDevTools(),
+           AutoImport({ 
+             imports: ['vue', 'vue-router', 'pinia'], 
+             resolvers: [ElementPlusResolver({ importStyle: 'css' })],
+             dts: 'src/auto-imports.d.ts', 
+             eslintrc: {
+               enabled: true,
+               filepath: './.eslintrc-auto-import.json',
+               globalsPropValue: true,
+             }
+           }),
+           Components({ 
+             resolvers: [ElementPlusResolver({ importStyle: 'css' })],
+             dts: 'src/components.d.ts' 
+           }),
+         ],
+         base: '/',
+         resolve: { 
+           alias: { 
+             '@': fileURLToPath(new URL('./src', import.meta.url)) 
+           } 
+         },
+       })
 
 【文件 2】创建 jsconfig.json：
 
@@ -147,17 +148,40 @@ Skill: 一键构建 Vue 3 + Element Plus 标准化高阶工程
         },
       },
       configPrettier,
-      ...pluginVue.configs['flat/recommended']
+      ...pluginVue.configs['flat/essential']
     ]
 
-【文件 5】创建 .vscode/settings.json：
+【文件 5】创建 .editorconfig：
+
+    [*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,css,scss,sass,less,styl}]
+    charset = utf-8
+    indent_size = 2
+    indent_style = space
+    insert_final_newline = true
+    trim_trailing_whitespace = true
+    end_of_line = lf
+    max_line_length = 80
+
+【文件 6】创建 .oxlintrc.json：
+
+    {
+      "$schema": "./node_modules/oxlint/configuration_schema.json",
+      "plugins": ["eslint", "unicorn", "oxc", "vue"],
+      "env": {
+        "browser": true
+      },
+      "categories": {
+        "correctness": "error"
+      }
+    }
+
+【文件 7】创建 .vscode/settings.json：
 
     {
       "explorer.fileNesting.enabled": true,
       "explorer.fileNesting.patterns": {
-        "tsconfig.json": "tsconfig.*.json, env.d.ts, typed-router.d.ts",
-        "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
-        "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxli*"
+        "package.json": ".editorconfig, .oxlintrc.json, .prettierrc.json, eslint.config.js, pnpm-lock.yaml",
+        "vite.config.js": "jsconfig.json"
       },
       "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
       "editor.formatOnSave": true,
